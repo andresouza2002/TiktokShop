@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Loja Demo - Frete Grátis</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+body{background:#f5f5f5;color:#111}
+header{
+  background:#111;color:#fff;padding:14px 16px;
+  display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;z-index:10
+}
+.logo{font-weight:800;font-size:20px}
+.badge{background:#ff2b55;padding:6px 10px;border-radius:20px;font-size:12px}
+.banner{
+  margin:12px;padding:16px;border-radius:14px;
+  background:linear-gradient(135deg,#ff2b55,#111);
+  color:white
+}
+.banner h1{font-size:22px;margin-bottom:6px}
+.banner p{font-size:14px}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;
+  padding:12px;
+}
+.card{
+  background:white;border-radius:14px;padding:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08)
+}
+.img{
+  height:130px;border-radius:12px;background:#eee;
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;margin-bottom:10px
+}
+.card h3{font-size:14px;min-height:48px}
+.old{color:#888;text-decoration:line-through;font-size:13px;margin-top:6px}
+.price{color:#ff2b55;font-size:20px;font-weight:800}
+.info{font-size:12px;color:#0a8f3c;margin:6px 0}
+button{
+  width:100%;border:0;border-radius:10px;
+  background:#111;color:white;padding:11px;
+  font-weight:800;cursor:pointer
+}
+button:hover{opacity:.9}
+
+.modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
+  z-index:99;align-items:center;justify-content:center;padding:12px
+}
+.box{
+  background:white;border-radius:16px;width:100%;max-width:420px;
+  max-height:95vh;overflow:auto;padding:16px
+}
+.close{text-align:right;font-size:22px;cursor:pointer}
+.box h2{font-size:20px;margin-bottom:8px}
+label{font-size:13px;font-weight:bold;margin-top:10px;display:block}
+input{
+  width:100%;padding:12px;margin-top:5px;border:1px solid #ddd;
+  border-radius:10px;font-size:15px
+}
+.summary{
+  background:#f7f7f7;border-radius:12px;padding:12px;margin:12px 0;
+  font-size:14px
+}
+.pixArea{display:none;text-align:center;margin-top:15px}
+.qr{
+  width:210px;height:210px;margin:12px auto;background:white;
+  border:8px solid #111;
+  display:grid;grid-template-columns:repeat(7,1fr);
+  grid-template-rows:repeat(7,1fr);gap:4px;padding:10px
+}
+.qr div{background:#111}
+.copy{
+  background:#eee;padding:10px;border-radius:10px;
+  word-break:break-all;font-size:12px;margin:10px 0
+}
+.green{color:#0a8f3c;font-weight:bold}
+.footer{
+  padding:20px;text-align:center;font-size:12px;color:#777
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">Shop Demo</div>
+  <div class="badge">80% OFF + Frete Grátis</div>
+</header>
+
+<section class="banner">
+  <h1>10/15 Produtos com Oferta Especial</h1>
+  <p>Entrega grátis em até 3 dias úteis. Pagamento via PIX simulado.</p>
+</section>
+
+<main class="grid" id="products"></main>
+
+<div class="modal" id="modal">
+  <div class="box">
+    <div class="close" onclick="closeModal()">×</div>
+    <h2>Finalizar pedido</h2>
+    <p id="checkoutProduct"></p>
+
+    <label>Nome completo</label>
+    <input id="name" placeholder="Digite seu nome">
+
+    <label>E-mail</label>
+    <input id="email" placeholder="seuemail@gmail.com">
+
+    <label>CPF</label>
+    <input id="cpf" placeholder="000.000.000-00">
+
+    <label>Endereço de entrega</label>
+    <input id="address" placeholder="Rua, número, bairro, cidade">
+
+    <div class="summary">
+      <p><b>Produto:</b> <span id="sumName"></span></p>
+      <p><b>Valor:</b> <span id="sumPrice"></span></p>
+      <p><b>Frete:</b> <span class="green">Grátis</span></p>
+      <p><b>Prazo:</b> 3 dias úteis</p>
+      <p><b>Pagamento:</b> API PIX</p>
+    </div>
+
+    <button onclick="generatePix()">Pagar com PIX</button>
+
+    <div class="pixArea" id="pixArea">
+      <h3>PIX gerado</h3>
+      <p>Escaneie o QR Code ou copie o código abaixo.</p>
+
+      <div class="qr">
+        <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+        <div></div><div></div><div></div><div></div>
+        <div></div><div></div><div></div>
+        <div></div><div></div><div></div><div></div><div></div>
+        <div></div><div></div><div></div>
+        <div></div><div></div><div></div><div></div>
+        <div></div><div></div><div></div><div></div><div></div>
+      </div>
+
+      <div class="copy" id="pixCode"></div>
+      <button onclick="copyPix()">Copiar código PIX</button>
+      <p style="font-size:12px;color:#777;margin-top:10px">
+        Simulação visual. Para venda real, integre uma API PIX oficial no backend.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Site demonstrativo para visualização de layout. Não é uma loja oficial.
+</div>
+
+<script>
+const products = [
+  {
+    name:"Samsung Smart TV 70'' Crystal UHD 4K + Soundbar",
+    old:"R$ 5.699,00",
+    price:"R$ 700,00",
+    icon:"📺"
+  },
+  {
+    name:"Air Fryer Mondial AFO-25L-BI 25L",
+    old:"R$ 899,00",
+    price:"R$ 179,90",
+    icon:"🍟"
+  },
+  {
+    name:"Caixa de Som JBL Boombox 4 Portátil",
+    old:"R$ 2.319,20",
+    price:"R$ 399,90",
+    icon:"🔊"
+  },
+  {
+    name:"Churrasqueira elétrica Arno GPRA preta",
+    old:"R$ 377,29",
+    price:"R$ 75,82",
+    icon:"🍖"
+  },
+  {
+    name:"Caixa Térmica Cooler SUV 20L",
+    old:"R$ 137,60",
+    price:"R$ 23,42",
+    icon:"🧊"
+  },
+  {
+    name:"Projetor multimídia 5200 lúmens Full HD",
+    old:"R$ 1.349,91",
+    price:"R$ 269,90",
+    icon:"🎥"
+  },
+  {
+    name:"Kit Body Splash Mother Extraordinaire",
+    old:"R$ 118,90",
+    price:"R$ 23,99",
+    icon:"🌸"
+  },
+  {
+    name:"Kit 10 Chapéus Natanzinho Original",
+    old:"R$ 56,90",
+    price:"R$ 56,90",
+    icon:"🤠"
+  },
+  {
+    name:"Jogo de Ferramentas 169 Peças",
+    old:"R$ 289,90",
+    price:"R$ 19,90",
+    icon:"🧰"
+  }
+];
+
+const grid = document.getElementById("products");
+
+products.forEach((p, i) => {
+  grid.innerHTML += `
+    <div class="card">
+      <div class="img">${p.icon}</div>
+      <h3>${p.name}</h3>
+      <div class="old">${p.old}</div>
+      <div class="price">${p.price}</div>
+      <div class="info">Frete grátis • Entrega em 3 dias úteis</div>
+      <button onclick="openCheckout(${i})">Comprar agora</button>
+    </div>
+  `;
+});
+
+let selectedProduct = null;
+
+function openCheckout(index){
+  selectedProduct = products[index];
+  document.getElementById("modal").style.display = "flex";
+  document.getElementById("checkoutProduct").innerText = selectedProduct.name;
+  document.getElementById("sumName").innerText = selectedProduct.name;
+  document.getElementById("sumPrice").innerText = selectedProduct.price;
+  document.getElementById("pixArea").style.display = "none";
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display = "none";
+}
+
+function generatePix(){
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const cpf = document.getElementById("cpf").value.trim();
+  const address = document.getElementById("address").value.trim();
+
+  if(!name || !email || !cpf || !address){
+    alert("Preencha todos os dados para continuar.");
+    return;
+  }
+
+  const fakePix =
+    "00020126580014BR.GOV.BCB.PIX0136PIX-DEMO-SITE-TESTE-NAO-PAGAR520400005303986540" +
+    selectedProduct.price.replace("R$ ","").replace(",",".") +
+    "5802BR5925LOJA DEMONSTRACAO6009SAO PAULO62070503***6304TEST";
+
+  document.getElementById("pixCode").innerText = fakePix;
+  document.getElementById("pixArea").style.display = "block";
+}
+
+function copyPix(){
+  const code = document.getElementById("pixCode").innerText;
+  navigator.clipboard.writeText(code);
+  alert("Código PIX copiado.");
+}
+</script>
+
+</body>
+</html>
